@@ -1,5 +1,5 @@
-import time
-import socket
+import sys
+from .vendor.Qt import QtWidgets
 
 import pyblish.api
 
@@ -7,8 +7,7 @@ import pyblish.api
 def start(gui, hosts=[]):
     """ This starts the supplied gui.
 
-    Loops through 5 attempts to show the gui, due to qml server nature.
-    It also registers any hosts along with it self "standalone".
+    It registers any hosts along with it self "standalone".
 
     Args:
         gui (module): Module that has a "show" method.
@@ -19,21 +18,9 @@ def start(gui, hosts=[]):
     for host in hosts:
         pyblish.api.register_host(host)
 
-    max_tries = 5
-    while True:
-        try:
-            time.sleep(0.5)
-            gui.show()
-        except socket.error as e:
-            if max_tries <= 0:
-                raise Exception("Couldn't run Pyblish QML: %s" % e)
-            else:
-                print("%s tries left.." % max_tries)
-                max_tries -= 1
-        else:
-            break
-
-    print("Launching Pyblish..")
+    app = QtWidgets.QApplication(sys.argv)
+    gui.show()
+    sys.exit(app.exec_())
 
 
 def stop():
